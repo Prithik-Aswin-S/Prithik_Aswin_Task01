@@ -73,8 +73,8 @@ function AdminResults() {
             {(data?.attempts || []).map((a: any) => (
               <tr key={a.id} className="border-t border-border">
                 <td className="p-4">
-                  <div className="font-medium">{a.profiles?.name}</div>
-                  <div className="text-xs text-muted-foreground">{a.profiles?.email}</div>
+                  <div className="font-medium">{a.profile?.name}</div>
+                  <div className="text-xs text-muted-foreground">{a.profile?.email}</div>
                 </td>
                 <td className="p-4">{a.exams?.title}</td>
                 <td className="p-4 text-right font-display">{a.score}/{a.total}</td>
