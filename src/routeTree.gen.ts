@@ -15,8 +15,13 @@ import { Route as ExamsRouteImport } from './routes/exams'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ResultsAttemptIdRouteImport } from './routes/results.$attemptId'
 import { Route as ExamExamIdRouteImport } from './routes/exam.$examId'
+import { Route as AdminStudentsRouteImport } from './routes/admin.students'
+import { Route as AdminResultsRouteImport } from './routes/admin.results'
+import { Route as AdminExamsRouteImport } from './routes/admin.exams'
+import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 
 const ResultsRoute = ResultsRouteImport.update({
   id: '/results',
@@ -48,6 +53,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultsAttemptIdRoute = ResultsAttemptIdRouteImport.update({
   id: '/$attemptId',
   path: '/$attemptId',
@@ -58,6 +68,26 @@ const ExamExamIdRoute = ExamExamIdRouteImport.update({
   path: '/exam/$examId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStudentsRoute = AdminStudentsRouteImport.update({
+  id: '/admin/students',
+  path: '/admin/students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminResultsRoute = AdminResultsRouteImport.update({
+  id: '/admin/results',
+  path: '/admin/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminExamsRoute = AdminExamsRouteImport.update({
+  id: '/admin/exams',
+  path: '/admin/exams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminExamsExamIdRoute = AdminExamsExamIdRouteImport.update({
+  id: '/$examId',
+  path: '/$examId',
+  getParentRoute: () => AdminExamsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,8 +96,13 @@ export interface FileRoutesByFullPath {
   '/exams': typeof ExamsRoute
   '/profile': typeof ProfileRoute
   '/results': typeof ResultsRouteWithChildren
+  '/admin/exams': typeof AdminExamsRouteWithChildren
+  '/admin/results': typeof AdminResultsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/exam/$examId': typeof ExamExamIdRoute
   '/results/$attemptId': typeof ResultsAttemptIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,8 +111,13 @@ export interface FileRoutesByTo {
   '/exams': typeof ExamsRoute
   '/profile': typeof ProfileRoute
   '/results': typeof ResultsRouteWithChildren
+  '/admin/exams': typeof AdminExamsRouteWithChildren
+  '/admin/results': typeof AdminResultsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/exam/$examId': typeof ExamExamIdRoute
   '/results/$attemptId': typeof ResultsAttemptIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,8 +127,13 @@ export interface FileRoutesById {
   '/exams': typeof ExamsRoute
   '/profile': typeof ProfileRoute
   '/results': typeof ResultsRouteWithChildren
+  '/admin/exams': typeof AdminExamsRouteWithChildren
+  '/admin/results': typeof AdminResultsRoute
+  '/admin/students': typeof AdminStudentsRoute
   '/exam/$examId': typeof ExamExamIdRoute
   '/results/$attemptId': typeof ResultsAttemptIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +144,13 @@ export interface FileRouteTypes {
     | '/exams'
     | '/profile'
     | '/results'
+    | '/admin/exams'
+    | '/admin/results'
+    | '/admin/students'
     | '/exam/$examId'
     | '/results/$attemptId'
+    | '/admin/'
+    | '/admin/exams/$examId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +159,13 @@ export interface FileRouteTypes {
     | '/exams'
     | '/profile'
     | '/results'
+    | '/admin/exams'
+    | '/admin/results'
+    | '/admin/students'
     | '/exam/$examId'
     | '/results/$attemptId'
+    | '/admin'
+    | '/admin/exams/$examId'
   id:
     | '__root__'
     | '/'
@@ -119,8 +174,13 @@ export interface FileRouteTypes {
     | '/exams'
     | '/profile'
     | '/results'
+    | '/admin/exams'
+    | '/admin/results'
+    | '/admin/students'
     | '/exam/$examId'
     | '/results/$attemptId'
+    | '/admin/'
+    | '/admin/exams/$examId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,7 +190,11 @@ export interface RootRouteChildren {
   ExamsRoute: typeof ExamsRoute
   ProfileRoute: typeof ProfileRoute
   ResultsRoute: typeof ResultsRouteWithChildren
+  AdminExamsRoute: typeof AdminExamsRouteWithChildren
+  AdminResultsRoute: typeof AdminResultsRoute
+  AdminStudentsRoute: typeof AdminStudentsRoute
   ExamExamIdRoute: typeof ExamExamIdRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/results/$attemptId': {
       id: '/results/$attemptId'
       path: '/$attemptId'
@@ -190,6 +261,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/exam/$examId'
       preLoaderRoute: typeof ExamExamIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/students': {
+      id: '/admin/students'
+      path: '/admin/students'
+      fullPath: '/admin/students'
+      preLoaderRoute: typeof AdminStudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/results': {
+      id: '/admin/results'
+      path: '/admin/results'
+      fullPath: '/admin/results'
+      preLoaderRoute: typeof AdminResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/exams': {
+      id: '/admin/exams'
+      path: '/admin/exams'
+      fullPath: '/admin/exams'
+      preLoaderRoute: typeof AdminExamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/exams/$examId': {
+      id: '/admin/exams/$examId'
+      path: '/$examId'
+      fullPath: '/admin/exams/$examId'
+      preLoaderRoute: typeof AdminExamsExamIdRouteImport
+      parentRoute: typeof AdminExamsRoute
     }
   }
 }
@@ -205,6 +304,18 @@ const ResultsRouteChildren: ResultsRouteChildren = {
 const ResultsRouteWithChildren =
   ResultsRoute._addFileChildren(ResultsRouteChildren)
 
+interface AdminExamsRouteChildren {
+  AdminExamsExamIdRoute: typeof AdminExamsExamIdRoute
+}
+
+const AdminExamsRouteChildren: AdminExamsRouteChildren = {
+  AdminExamsExamIdRoute: AdminExamsExamIdRoute,
+}
+
+const AdminExamsRouteWithChildren = AdminExamsRoute._addFileChildren(
+  AdminExamsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
@@ -212,7 +323,11 @@ const rootRouteChildren: RootRouteChildren = {
   ExamsRoute: ExamsRoute,
   ProfileRoute: ProfileRoute,
   ResultsRoute: ResultsRouteWithChildren,
+  AdminExamsRoute: AdminExamsRouteWithChildren,
+  AdminResultsRoute: AdminResultsRoute,
+  AdminStudentsRoute: AdminStudentsRoute,
   ExamExamIdRoute: ExamExamIdRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
