@@ -9,11 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ExamsRouteImport } from './routes/exams'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultsAttemptIdRouteImport } from './routes/results.$attemptId'
+import { Route as ExamExamIdRouteImport } from './routes/exam.$examId'
 
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExamsRoute = ExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
@@ -34,18 +48,36 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultsAttemptIdRoute = ResultsAttemptIdRouteImport.update({
+  id: '/$attemptId',
+  path: '/$attemptId',
+  getParentRoute: () => ResultsRoute,
+} as any)
+const ExamExamIdRoute = ExamExamIdRouteImport.update({
+  id: '/exam/$examId',
+  path: '/exam/$examId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/profile': typeof ProfileRoute
+  '/results': typeof ResultsRouteWithChildren
+  '/exam/$examId': typeof ExamExamIdRoute
+  '/results/$attemptId': typeof ResultsAttemptIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/profile': typeof ProfileRoute
+  '/results': typeof ResultsRouteWithChildren
+  '/exam/$examId': typeof ExamExamIdRoute
+  '/results/$attemptId': typeof ResultsAttemptIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +85,42 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/profile': typeof ProfileRoute
+  '/results': typeof ResultsRouteWithChildren
+  '/exam/$examId': typeof ExamExamIdRoute
+  '/results/$attemptId': typeof ResultsAttemptIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/exams'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/exams'
+    | '/profile'
+    | '/results'
+    | '/exam/$examId'
+    | '/results/$attemptId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/exams'
-  id: '__root__' | '/' | '/auth' | '/dashboard' | '/exams'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/exams'
+    | '/profile'
+    | '/results'
+    | '/exam/$examId'
+    | '/results/$attemptId'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/exams'
+    | '/profile'
+    | '/results'
+    | '/exam/$examId'
+    | '/results/$attemptId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +128,27 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   ExamsRoute: typeof ExamsRoute
+  ProfileRoute: typeof ProfileRoute
+  ResultsRoute: typeof ResultsRouteWithChildren
+  ExamExamIdRoute: typeof ExamExamIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exams': {
       id: '/exams'
       path: '/exams'
@@ -99,14 +177,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/results/$attemptId': {
+      id: '/results/$attemptId'
+      path: '/$attemptId'
+      fullPath: '/results/$attemptId'
+      preLoaderRoute: typeof ResultsAttemptIdRouteImport
+      parentRoute: typeof ResultsRoute
+    }
+    '/exam/$examId': {
+      id: '/exam/$examId'
+      path: '/exam/$examId'
+      fullPath: '/exam/$examId'
+      preLoaderRoute: typeof ExamExamIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface ResultsRouteChildren {
+  ResultsAttemptIdRoute: typeof ResultsAttemptIdRoute
+}
+
+const ResultsRouteChildren: ResultsRouteChildren = {
+  ResultsAttemptIdRoute: ResultsAttemptIdRoute,
+}
+
+const ResultsRouteWithChildren =
+  ResultsRoute._addFileChildren(ResultsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   ExamsRoute: ExamsRoute,
+  ProfileRoute: ProfileRoute,
+  ResultsRoute: ResultsRouteWithChildren,
+  ExamExamIdRoute: ExamExamIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
