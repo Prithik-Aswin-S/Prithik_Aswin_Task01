@@ -16,20 +16,26 @@ function AdminResults() {
     queryFn: async () => {
       const { data: attempts } = await supabase
         .from("attempts")
-        .select("*, exams(title,subject), profiles!attempts_student_id_fkey(name,email)")
+        .select("*, exams(title,subject)")
         .eq("status", "submitted")
         .order("submitted_at", { ascending: false });
+      const ids = Array.from(new Set((attempts || []).map((a: any) => a.student_id)));
+      const { data: profiles } = ids.length
+        ? await supabase.from("profiles").select("id,name,email").in("id", ids)
+        : { data: [] as any[] };
+      const pmap: Record<string, any> = {};
+      (profiles || []).forEach((p: any) => { pmap[p.id] = p; });
+      const enriched = (attempts || []).map((a: any) => ({ ...a, profile: pmap[a.student_id] }));
 
-      // group by exam for chart
       const byExam: Record<string, { title: string; total: number; sum: number }> = {};
-      (attempts || []).forEach((a: any) => {
+      enriched.forEach((a: any) => {
         const t = a.exams?.title || "Unknown";
         if (!byExam[t]) byExam[t] = { title: t, total: 0, sum: 0 };
         byExam[t].total++;
         byExam[t].sum += Number(a.percentage || 0);
       });
       const chart = Object.values(byExam).map((e) => ({ title: e.title, avg: Number((e.sum / e.total).toFixed(1)) }));
-      return { attempts: attempts || [], chart };
+      return { attempts: enriched, chart };
     },
   });
 
