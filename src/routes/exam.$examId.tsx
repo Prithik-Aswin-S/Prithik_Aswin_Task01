@@ -19,7 +19,7 @@ export const Route = createFileRoute("/exam/$examId")({
 type Question = {
   id: string; question_text: string;
   option_a: string; option_b: string; option_c: string; option_d: string;
-  correct_answer: string; position: number;
+  q_position: number;
 };
 
 function ExamRunner() {
@@ -41,8 +41,9 @@ function ExamRunner() {
       try {
         const { data: e } = await supabase.from("exams").select("*").eq("id", examId).single();
         if (!e) { toast.error("Exam not found"); navigate({ to: "/exams" }); return; }
-        const { data: qs } = await supabase
-          .from("questions").select("*").eq("exam_id", examId).order("position");
+        const { data: qs, error: qErr } = await supabase
+          .rpc("get_exam_questions", { p_exam_id: examId });
+        if (qErr) throw qErr;
         const { data: attempt } = await supabase.from("attempts")
           .insert({ student_id: user!.id, exam_id: examId, status: "in_progress", total: qs?.length ?? 0 })
           .select().single();
@@ -92,14 +93,12 @@ function ExamRunner() {
   const submit = async (auto = false) => {
     if (submittedRef.current || !attemptId) return;
     submittedRef.current = true;
-    const total = questions.length;
-    let correct = 0;
-    questions.forEach((q) => { if (answers[q.id] === q.correct_answer) correct++; });
-    const pct = total ? (correct / total) * 100 : 0;
-    await supabase.from("attempts").update({
-      submitted_at: new Date().toISOString(),
-      score: correct, total, percentage: pct, status: "submitted",
-    }).eq("id", attemptId);
+    const { error } = await supabase.rpc("submit_attempt", { p_attempt_id: attemptId });
+    if (error) {
+      submittedRef.current = false;
+      toast.error(error.message ?? "Failed to submit exam");
+      return;
+    }
     toast.success(auto ? "Time up — auto-submitted" : "Exam submitted");
     navigate({ to: "/results/$attemptId", params: { attemptId } });
   };

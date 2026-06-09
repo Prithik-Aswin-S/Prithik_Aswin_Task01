@@ -18,9 +18,10 @@ function ResultPage() {
     queryFn: async () => {
       const { data: attempt } = await supabase
         .from("attempts").select("*, exams(title,subject)").eq("id", attemptId).single();
-      const { data: ans } = await supabase
-        .from("attempt_answers").select("*, questions(*)").eq("attempt_id", attemptId);
-      return { attempt, ans: ans || [] };
+      const { data: review, error } = await supabase
+        .rpc("get_attempt_review", { p_attempt_id: attemptId });
+      if (error) throw error;
+      return { attempt, ans: review || [] };
     },
   });
   if (!data?.attempt) return <div className="p-10">Loading…</div>;
@@ -66,19 +67,18 @@ function ResultPage() {
       <h2 className="font-display text-xl font-semibold mt-10">Review</h2>
       <div className="mt-4 space-y-3">
         {data.ans.map((row: any, i: number) => {
-          const q = row.questions;
-          const ok = row.selected_answer === q.correct_answer;
+          const ok = row.selected_answer === row.correct_answer;
           return (
-            <div key={row.id} className="glass-card rounded-xl p-5">
+            <div key={row.question_id} className="glass-card rounded-xl p-5">
               <div className="text-xs text-muted-foreground">Q{i + 1}</div>
-              <div className="font-medium">{q.question_text}</div>
+              <div className="font-medium">{row.question_text}</div>
               <div className="mt-2 text-sm flex gap-2 flex-wrap">
                 <span className={`px-2 py-1 rounded-md ${ok ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                   Your answer: {row.selected_answer || "—"}
                 </span>
                 {!ok && (
                   <span className="px-2 py-1 rounded-md bg-success/20 text-success">
-                    Correct: {q.correct_answer}
+                    Correct: {row.correct_answer}
                   </span>
                 )}
               </div>
