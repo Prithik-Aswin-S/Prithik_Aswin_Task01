@@ -224,12 +224,47 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_attempt_review: {
+        Args: { p_attempt_id: string }
+        Returns: {
+          correct_answer: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          q_position: number
+          question_id: string
+          question_text: string
+          selected_answer: string
+        }[]
+      }
+      get_exam_questions: {
+        Args: { p_exam_id: string }
+        Returns: {
+          exam_id: string
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          q_position: number
+          question_text: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      submit_attempt: {
+        Args: { p_attempt_id: string }
+        Returns: {
+          percentage: number
+          score: number
+          total: number
+        }[]
       }
     }
     Enums: {
