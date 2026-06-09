@@ -18,9 +18,10 @@ function ResultPage() {
     queryFn: async () => {
       const { data: attempt } = await supabase
         .from("attempts").select("*, exams(title,subject)").eq("id", attemptId).single();
-      const { data: ans } = await supabase
-        .from("attempt_answers").select("*, questions(*)").eq("attempt_id", attemptId);
-      return { attempt, ans: ans || [] };
+      const { data: review, error } = await supabase
+        .rpc("get_attempt_review", { p_attempt_id: attemptId });
+      if (error) throw error;
+      return { attempt, ans: review || [] };
     },
   });
   if (!data?.attempt) return <div className="p-10">Loading…</div>;
